@@ -37,13 +37,18 @@ def seed_productos(session: Session, base_dir: Path, filename: str = "productos.
 
     inserted = 0
     for raw in data:
-        # Acepta solo las claves de tu modelo. Ignora extras (p. ej. "imagen")
+        # "valoracion" está presente en el JSON original pero no en el modelo.
+        # Se ignora explícitamente para evitar errores de validación.
+
+        nombre = str(raw.get("nombre") or raw.get("titulo", "")).strip()
+        imagen = raw.get("imagen") or raw.get("img") or raw.get("image")
         p = Producto(
-            nombre=str(raw.get("nombre", "")).strip(),
+            nombre=nombre,
             descripcion=str(raw.get("descripcion", "")),
             precio=float(raw.get("precio", 0.0)),
             categoria=str(raw.get("categoria", "")).strip(),
             existencia=int(raw.get("existencia", 0)),
+            imagen=str(imagen).strip() if imagen else None,
         )
         session.add(p)
         inserted += 1
